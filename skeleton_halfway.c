@@ -18,10 +18,36 @@ void move_to_location(int connection, unsigned char id, unsigned char loc_h, uns
 
 }
 
+int readMove(int connection, int id){
+	unsigned char cs = ~ ( id + 0x04 + 0x02 + 0x2e + 0x01);
+
+	unsigned char arr[] = { 0xff, 0xff, id, 0x04, 0x02, 0x2e, 0x01, cs};
+
+	int buff_len = 100;
+	unsigned char buff[buff_len];
+
+	int bytes_read = write_to_connection(connection,arr,8,buff,buff_len);
+
+	return (int) buff[5];
+}
+
+void readSpeed(int connection, int id){
+	unsigned char cs = ~ ( id + 0x04 + 0x02 + 0x20 + 0x01);
+
+	unsigned char arr[] = { 0xff, 0xff, id, 0x04, 0x02, 0x20, 0x01, cs};
+
+	int buff_len = 100;
+	unsigned char buff[buff_len];
+
+	int bytes_read = write_to_connection(connection,arr,8,buff,buff_len);
+
+	printf("%d", ((int) buff[5]));
+}
+
 void wait_until_done(int connection) {
 	usleep(2000000);
 }
-
+/*
 void release(int connection) {
 	move_to_location(connection,5,0x01,0xff);
 	wait_until_done(connection);
@@ -86,20 +112,13 @@ void down(int connection){
 void move(int start, int depthStart, int end, int depthEnd) {
 	release(connection);
 	
-}
+}*/
 
 int main(int argc, char* argv[]) {
 
 	int connection = open_connection("/dev/ttyUSB0",B1000000);
 
-	release(connection);
-	position2(connection);
-	position1(connection);
-	down(connection);
-	down(connection);
-	grip(connection);
-	position2(connection);
-	release(connection);
+	readSpeed(connection, 1);
 	return 0;
 
 }
