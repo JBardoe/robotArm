@@ -5,7 +5,7 @@
 
 unsigned char location[4][2];//Stores the current location of the arm
 unsigned char positions[3][2] = {{0x01,0x90}, {0x01,0xff}, {0x02,0x6e}};//Stores the locations of the 3 piles
-int depth[] = {0,3,3};//Stores how low the arm should go for each move
+int depth[] = {0,0,0};//Stores how low the arm should go for each move
 
 //Creates and sends a package to the robot arm telling it to move to a specified location
 void move_to_location(int connection, unsigned char id, unsigned char loc_h, unsigned char loc_l) {
@@ -135,8 +135,13 @@ int main(int argc, char* argv[]) {
 	
 	//Initialise the arm's position
 	release(connection);
+
+	int numBlocks = 2;
+
+	depth[1] = numBlocks+1;
+	depth[2] = numBlocks+1;
 	
-	solve(connection, 2, 0, 1, 2);//Solve the problem
+	solve(connection, numBlocks, 0, 1, 2);//Solve the problem
 	close_connection(connection);
 
 	return 0;
