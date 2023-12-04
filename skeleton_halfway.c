@@ -5,6 +5,19 @@
 
 unsigned char location[4][2];
 
+void readSpeed(int connection, int id){
+	unsigned char cs = ~ ( id + 0x04 + 0x02 + 0x20 + 0x01);
+
+	unsigned char arr[] = { 0xff, 0xff, id, 0x04, 0x02, 0x20, 0x01, cs};
+
+	int buff_len = 100;
+	unsigned char buff[buff_len];
+
+	int bytes_read = write_to_connection(connection,arr,8,buff,buff_len);
+
+	printf("%d\n", ((int) buff[5]));
+}
+
 void move_to_location(int connection, unsigned char id, unsigned char loc_h, unsigned char loc_l) {
 
 	unsigned char cs = ~ ( id + 0x07 + 0x03 + 0x1e + loc_l + loc_h + 0x30 + 0x00);
@@ -14,7 +27,9 @@ void move_to_location(int connection, unsigned char id, unsigned char loc_h, uns
 	int buff_len = 100;
 	unsigned char buff[buff_len];
 
+	readSpeed(connection, id);
 	int bytes_read = write_to_connection(connection,arr,11,buff,buff_len);
+	readSpeed(connection, id);
 
 }
 
@@ -31,23 +46,21 @@ int readMove(int connection, int id){
 	return (int) buff[5];
 }
 
-void readSpeed(int connection, int id){
-	unsigned char cs = ~ ( id + 0x04 + 0x02 + 0x20 + 0x01);
+void changeSpeed(int connection, int id){
+	unsigned char cs = ~ ( id + 0x05 + 0x03 + 0x20 + 0x6e + 0x00 );
 
-	unsigned char arr[] = { 0xff, 0xff, id, 0x04, 0x02, 0x20, 0x01, cs};
+	unsigned char arr[] = { 0xff, 0xff, id, 0x05, 0x03, 0x20, 0x6e, 0x00, cs };
 
 	int buff_len = 100;
 	unsigned char buff[buff_len];
 
-	int bytes_read = write_to_connection(connection,arr,8,buff,buff_len);
-
-	printf("%d", ((int) buff[5]));
+	int bytes_read = write_to_connection(connection,arr,9,buff,buff_len);
 }
 
 void wait_until_done(int connection) {
 	usleep(2000000);
 }
-/*
+
 void release(int connection) {
 	move_to_location(connection,5,0x01,0xff);
 	wait_until_done(connection);
@@ -82,7 +95,7 @@ void position1(int connection) {
 	location[3][0] = 0x01;
 	location[3][1] = 0x01;
 }
-
+/*
 void position2(int connection) {
 	dodge(connection);
 	move_to_location(connection,1,0x01,0xff);
@@ -117,8 +130,7 @@ void move(int start, int depthStart, int end, int depthEnd) {
 int main(int argc, char* argv[]) {
 
 	int connection = open_connection("/dev/ttyUSB0",B1000000);
-
-	readSpeed(connection, 1);
+	position1(connection);
 	return 0;
 
 }

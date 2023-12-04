@@ -10,9 +10,9 @@ int depth[] = {0,3,3};//Stores how low the arm should go for each move
 //Creates and sends a package to the robot arm telling it to move to a specified location
 void move_to_location(int connection, unsigned char id, unsigned char loc_h, unsigned char loc_l) {
 
-	unsigned char cs = ~ ( id + 0x07 + 0x03 + 0x1e + loc_l + loc_h + 0x30 + 0x00);//Create the checksum
+	unsigned char cs = ~ ( id + 0x07 + 0x03 + 0x1e + loc_l + loc_h + 0x60 + 0x00);//Create the checksum
 
-	unsigned char arr[] = { 0xff, 0xff, id, 0x07, 0x03, 0x1e, loc_l, loc_h, 0x30, 0x00, cs };//Create the package
+	unsigned char arr[] = { 0xff, 0xff, id, 0x07, 0x03, 0x1e, loc_l, loc_h, 0x60, 0x00, cs };//Create the package
 
 	int buff_len = 100;
 	unsigned char buff[buff_len];//Create the buffer location
@@ -135,7 +135,6 @@ int main(int argc, char* argv[]) {
 	
 	//Initialise the arm's position
 	release(connection);
-	move_to_pile(connection, positions[0]);
 	
 	solve(connection, 2, 0, 1, 2);//Solve the problem
 	close_connection(connection);
