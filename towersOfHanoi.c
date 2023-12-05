@@ -21,24 +21,25 @@ void move_to_location(int connection, unsigned char id, unsigned char loc_h, uns
 
 }
 
-
+/*Creates and sends a package to the robot arm polling the moving register to check whether the arm is moving.
+  Returns the value of the moving register (1 if moving, 0 is not).*/
 int isMoving(int connection, int id){
-	unsigned char cs = ~ ( id + 0x04 + 0x02 + 0x2e + 0x01);
+	unsigned char cs = ~ ( id + 0x04 + 0x02 + 0x2e + 0x01);//Create the checksum
 
-	unsigned char arr[] = { 0xff, 0xff, id, 0x04, 0x02, 0x2e, 0x01, cs};
+	unsigned char arr[] = { 0xff, 0xff, id, 0x04, 0x02, 0x2e, 0x01, cs};//Create a read packet
 
 	int buff_len = 100;
-	unsigned char buff[buff_len];
+	unsigned char buff[buff_len];//Create the buffer location
 
-	int bytes_read = write_to_connection(connection,arr,8,buff,buff_len);
+	int bytes_read = write_to_connection(connection,arr,8,buff,buff_len);//Send the package to the arm
 
-	return (int) buff[5];
+	return (int) buff[5];//Return the data at the position of the buffer where the value of the moving register is stored
 }
 
-//Delay the code to allow time for the arm to reach its location
+//Delay the code to allow time for the arm to reach its location by checking when it is moving
 void wait_until_done(int connection, int id) {
-	while(isMoving(connection, id)){
-		usleep(5000);
+	while(isMoving(connection, id)){//Check whether the specific motor is moving
+		usleep(5000);//Delay slightly so as to not overload the arm processor with packets
 	}
 }
 
@@ -75,7 +76,7 @@ void move_to_pile(int connection, unsigned char motor1[2]) {
 	move_to_location(connection,2,0x01,0x40);
 	move_to_location(connection,3,0x01,0x90);
 	move_to_location(connection,4,0x01,0x01);
-	wait_until_done(connection, 4); //Might need to be changed
+	wait_until_done(connection, 4);
 
 	//Update the robots current position
 	location[0][0] = motor1[0];
@@ -92,7 +93,7 @@ void move_to_pile(int connection, unsigned char motor1[2]) {
 void down(int connection){
 	move_to_location(connection,2,0x01,(location[1][1]-0x17));
 	move_to_location(connection,4,0x01,(location[3][1]+0x15));
-	wait_until_done(connection, 4); //Might need to be changed
+	wait_until_done(connection, 4);
 	location[1][1] = location[1][1]-0x17;
 	location[3][1] = location[3][1]+0x15;
 }
@@ -137,7 +138,7 @@ int main(int argc, char* argv[]) {
 	release(connection);
 	
 	solve(connection, 2, 0, 1, 2);//Solve the problem
-	close_connection(connection);
+	close_connection(connection);//Close the connection
 
 	return 0;
 
