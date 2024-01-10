@@ -4,8 +4,8 @@
 #include <unistd.h>
 
 unsigned char location[4][2];//Stores the current location of the arm
-unsigned char positions[3][2] = {{0x01,0x90}, {0x01,0xff}, {0x02,0x6e}};//Stores the locations of the 3 piles
-int depth[] = {0,3,3};//Stores how low the arm should go for each move
+unsigned char positions[3][2] = {{0x01,0x90}, {0x01,0xff}, {0x02,0x6e}};//Stores the horizontal locations of the 3 piles
+int depth[] = {0,3,3};//Stores the vertical location of the highest cube in each pile
 
 //Creates and sends a package to the robot arm telling it to move to a specified location
 void move_to_location(int connection, unsigned char id, unsigned char loc_h, unsigned char loc_l) {
@@ -115,17 +115,29 @@ void move(int connection, int start, int depthStart, int end, int depthEnd) {
 	release(connection);//Release the block
 }
 
-//Implement a recursive algorithm to solve the towers of hanoi
+//A recursive algorithm to solve the Tower of Hanoi.
+//"numBlocks" is the cube ID, "start" is the starting pile, "end" is the desitnation, and
+//"away" represents the helper pile, which is used to put the smaller cubes away temporarily.
 void solve(int connection, int numBlocks, int start, int away, int end){
-    
+
+    //If this is the smallest cube, then move it to its destination directly.
     if(numBlocks == 0){
+
+	//Update the "depth" at the start by incrementing it, as a cube has been removed from there.
+	//Oppositely in the destination.
         move(connection, start, depth[start]++, end, ((depth[end]--)-1));
     }
+    //If it is not the smallest cube, then:
     else{
+
+	//Move the smaller cube above it to the "away" pile to make room
+	//for this current cube to move to its destination.
         solve(connection, numBlocks-1, start, end, away);
-        
+
+	//Move this cube to its destination.
         move(connection, start, depth[start]++, end, ((depth[end]--)-1));
-        
+
+	//Bring back the smaller cube from the "away" pile to the destination.
         solve(connection, numBlocks-1, away, start, end);
     }
 }
